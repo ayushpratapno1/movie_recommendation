@@ -1,4 +1,5 @@
 Movie Recommendation System (Django)
+
 A production-style web app that recommends movies using a hybrid approach (content-based + collaborative signals), built with Django, HTML/CSS/JS, and a pretrained model hosted on Hugging Face. The system supports user accounts, ratings, watchlists, search/filters, and explainable recommendations suitable for a college project and demo deployment.
 
 Features
@@ -34,6 +35,7 @@ Hosting model: Hugging Face Hub (load by repo id/token).
 Deployment targets: any Django-friendly host (Railway/Render/AWS/Heroku).
 
 Architecture
+
 Django app modules:
 
 core: settings, auth, admin.
@@ -53,7 +55,9 @@ Data flow:
 Ingest dataset → 2) Preprocess features/embeddings → 3) Train/fine‑tune model in Colab → 4) Push model to Hugging Face → 5) Django loads model at startup → 6) API serves recs to UI.
 
 Getting Started
+
 Prerequisites
+
 Python 3.10+ and pip/venv.
 
 Git.
@@ -61,6 +65,7 @@ Git.
 Optional: Redis (for Celery) and a Hugging Face token if loading a private model.
 
 Installation
+
 Clone repository
 
 git clone <your-repo-url> && cd movie-recsys
@@ -96,11 +101,13 @@ Start server
 python manage.py runserver
 
 Quick Start (Demo Data)
+
 Use provided fixture or management command to load a small MovieLens/TMDb subset.
 
 Visit http://127.0.0.1:8000, register a user, rate a few movies, and open the Home page to see recommendations populate.
 
 Usage
+
 Home: personalized carousels (Trending, For You, Because You Liked, By Genre).
 
 Movie detail: poster, synopsis, cast, similar movies, and explanation (“Because you liked X”).
@@ -114,6 +121,7 @@ Profile: edit preferences; see rating history.
 Admin: add/edit movies, tags, cast.
 
 Recommendation Engine
+
 Approach: hybrid of content similarity (text/image embeddings over plots/posters) and collaborative signals (user–item ratings).
 
 Training:
@@ -131,6 +139,7 @@ Batch vs. realtime:
 Optional Celery tasks to refresh similarity matrices and cached recommendations nightly/hourly.
 
 API Endpoints
+
 GET /api/recommendations/ → top‑N for current user.
 
 GET /api/search/?q=&genre=&year=&tag= → results with filters.
@@ -142,11 +151,13 @@ POST /api/watchlist/add|remove {movie_id} → manage list.
 GET /api/me/ → profile preferences and stats.
 
 Data Sources
+
 MovieLens ratings and metadata for experimentation.
 
 TMDb for posters and extended fields (respect API TOS).
 
 Environment & Configuration
+
 Settings split for dev/prod; DEBUG=false in production.
 
 Database: SQLite for dev; Postgres recommended for prod.
@@ -158,6 +169,7 @@ Hugging Face:
 HF_MODEL_REPO for model name; HF_TOKEN if private; caching enabled.
 
 Deployment
+
 Collect static: python manage.py collectstatic.
 
 Run with a WSGI/ASGI server (gunicorn/uvicorn) behind a reverse proxy.
@@ -167,11 +179,13 @@ Provision environment variables and persistent database/storage on host (Railway
 Add a worker (optional) for Celery tasks with Redis.
 
 Screenshots / Demo
+
 Include GIFs or images of Home, Movie Detail, Watchlist, and Admin UI to showcase flows and UX.
 
 Optional: link to a deployed demo instance.
 
 Roadmap
+
 Cold‑start improvements via onboarding quiz and short explicit preference capture.
 
 Better explanations with natural‑language templates.
