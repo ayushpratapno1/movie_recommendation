@@ -26,11 +26,38 @@ class Movie(models.Model):
     duration_minutes = models.IntegerField()
     poster_url = models.URLField(blank=True, null=True)
     trailer_url = models.URLField(blank=True, null=True)
+    tmdb_id = models.IntegerField(blank=True, null=True, help_text="The Movie Database ID for API calls")
     genres = models.ManyToManyField(Genre, related_name='movies')
     cast = models.ManyToManyField(Person, related_name='acted_movies', blank=True)
     directors = models.ManyToManyField(Person, related_name='directed_movies', blank=True)
     average_rating = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def get_poster_url(self):
+        """Get poster URL, fetching from TMDb if needed"""
+        if self.poster_url and self.poster_url.startswith('http'):
+            return self.poster_url
+        
+        # Try to get from TMDb
+        if self.tmdb_id:
+            from .tmdb_service import TMDbService
+            poster_url = TMDbService.get_poster_url(tmdb_id=self.tmdb_id)
+            if poster_url:
+                # Cache the URL in the database
+                self.poster_url = poster_url
+                self.save(update_fields=['poster_url'])
+                return poster_url
+        
+        # Try to search by title and year
+        from .tmdb_service import TMDbService
+        poster_url = TMDbService.find_movie_poster(self.title, self.release_year)
+        if poster_url:
+            # Cache the URL in the database
+            self.poster_url = poster_url
+            self.save(update_fields=['poster_url'])
+            return poster_url
+        
+        return None
     
     def __str__(self):
         return f"{self.title} ({self.release_year})"

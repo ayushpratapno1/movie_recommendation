@@ -1,27 +1,36 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Movie, Genre
 from users.models import Rating, Watchlist
 
+def index(request):
+    """Landing page for non-authenticated users"""
+    if request.user.is_authenticated:
+        return redirect('movies:home')
+    return render(request, 'movies/index.html')
+
 def home(request):
+    """Home page for authenticated users"""
+    if not request.user.is_authenticated:
+        return redirect('movies:index')
+    
     # Get movies for different carousels
     trending_movies = Movie.objects.all()[:10]  # Simple trending for now
     recommended_movies = []
     
-    if request.user.is_authenticated:
-        # Get user's rated movies for recommendations (basic logic)
-        user_ratings = Rating.objects.filter(user=request.user, rating__gte=4)
-        if user_ratings.exists():
-            # Get movies from same genres as highly rated ones
-            liked_genres = []
-            for rating in user_ratings:
-                liked_genres.extend(rating.movie.genres.all())
-            
-            recommended_movies = Movie.objects.filter(
-                genres__in=liked_genres
-            ).exclude(
-                id__in=[r.movie.id for r in user_ratings]
-            ).distinct()[:10]
+    # Get user's rated movies for recommendations (basic logic)
+    user_ratings = Rating.objects.filter(user=request.user, rating__gte=4)
+    if user_ratings.exists():
+        # Get movies from same genres as highly rated ones
+        liked_genres = []
+        for rating in user_ratings:
+            liked_genres.extend(rating.movie.genres.all())
+        
+        recommended_movies = Movie.objects.filter(
+            genres__in=liked_genres
+        ).exclude(
+            id__in=[r.movie.id for r in user_ratings]
+        ).distinct()[:10]
     
     genres = Genre.objects.all()
     

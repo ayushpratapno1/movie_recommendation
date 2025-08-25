@@ -7,16 +7,19 @@
     <div class="row">
         <!-- Movie Poster -->
         <div class="col-md-4">
-            {% if movie.poster_url %}
-                <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster" class="img-fluid rounded shadow">
+            {% with poster_url=movie.get_poster_url %}
+            {% if poster_url %}
+                <img src="{{ poster_url }}" alt="{{ movie.title }} poster" class="img-fluid rounded shadow">
             {% else %}
                 <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 500px;">
                     <div class="text-center">
+                        <i class="fas fa-film fa-5x mb-3 text-muted"></i>
                         <h3>{{ movie.title }}</h3>
                         <p>No Poster Available</p>
                     </div>
                 </div>
             {% endif %}
+            {% endwith %}
         </div>
 
         <!-- Movie Details -->
@@ -60,7 +63,7 @@
                     <!-- Rating Stars -->
                     <div class="mb-3">
                         <strong>Your Rating:</strong>
-                        <div class="star-rating" data-movie-id="{{ movie.id }}">
+                        <div class="star-rating" data-movie-id="{{ movie.id }}" data-current-rating="{{ user_rating|default:0 }}">
                             {% for i in "12345" %}
                                 <span class="star" data-rating="{{ i }}">★</span>
                             {% endfor %}
@@ -93,13 +96,19 @@
                         {% for similar in similar_movies %}
                         <div class="col-md-2 col-sm-3 mb-3">
                             <div class="card movie-card bg-dark text-white" data-movie-url="{% url 'movies:movie_detail' similar.id %}" style="cursor: pointer;">
-                                {% if similar.poster_url %}
-                                    <img src="{{ similar.poster_url }}" class="card-img-top" alt="{{ similar.title }}">
+                                {% with poster_url=similar.get_poster_url %}
+                                {% if poster_url %}
+                                    <img src="{{ poster_url }}" class="card-img-top" alt="{{ similar.title }}" style="height: 200px; object-fit: cover;">
                                 {% else %}
                                     <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                                        <small>{{ similar.title }}</small>
+                                        <div class="text-center">
+                                            <i class="fas fa-film fa-2x mb-1 text-muted"></i>
+                                            <br>
+                                            <small>{{ similar.title }}</small>
+                                        </div>
                                     </div>
                                 {% endif %}
+                                {% endwith %}
                                 <div class="card-body p-2">
                                     <small class="card-title">{{ similar.title }}</small>
                                 </div>
@@ -119,11 +128,18 @@
     font-size: 2rem;
     color: #ddd;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s ease;
+    user-select: none;
 }
 .star-rating .star:hover,
 .star-rating .star.active {
     color: #ffc107;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    transform: scale(1.1);
+}
+.star-rating {
+    display: inline-block;
+    padding: 5px 0;
 }
 </style>
 {% endblock %}
@@ -151,6 +167,26 @@ const csrftoken = getCookie('csrftoken');
 document.querySelectorAll('.star-rating').forEach(function(rating) {
     const stars = rating.querySelectorAll('.star');
     const movieId = rating.getAttribute('data-movie-id');
+    const currentRating = parseInt(rating.getAttribute('data-current-rating')) || 0;
+    
+    // Initialize stars based on current rating
+    if (currentRating > 0) {
+        updateStars(stars, currentRating);
+    }
+    
+    // Add hover effects
+    stars.forEach(function(star, index) {
+        // Hover effect - show preview of rating
+        star.addEventListener('mouseenter', function() {
+            updateStars(stars, index + 1);
+        });
+    });
+    
+    // Reset to current rating when mouse leaves the rating area
+    rating.addEventListener('mouseleave', function() {
+        const currentRating = parseInt(rating.getAttribute('data-current-rating')) || 0;
+        updateStars(stars, currentRating);
+    });
     
     stars.forEach(function(star, index) {
         star.addEventListener('click', function() {
@@ -173,6 +209,9 @@ document.querySelectorAll('.star-rating').forEach(function(rating) {
                 if (data.success) {
                     // Update star display
                     updateStars(stars, ratingValue);
+                    // Update the current rating attribute for persistence
+                    rating.setAttribute('data-current-rating', ratingValue);
+                    // Update the rating text
                     document.querySelector('.current-rating').textContent = ratingValue + '/5';
                 }
             });

@@ -25,14 +25,20 @@
                 <div class="col-md-3 col-sm-4 mb-3">
                     <div class="card movie-card bg-dark text-white"
                         data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
-                        {% if movie.poster_url %}
-                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% with poster_url=movie.get_poster_url %}
+                        {% if poster_url %}
+                        <img src="{{ poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
                         {% else %}
                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
                             style="height: 300px;">
-                            <span>{{ movie.title }}</span>
+                            <div class="text-center">
+                                <i class="fas fa-film fa-3x mb-2 text-muted"></i>
+                                <br>
+                                <span>{{ movie.title }}</span>
+                            </div>
                         </div>
                         {% endif %}
+                        {% endwith %}
                         <div class="card-body">
                             <h6 class="card-title">{{ movie.title }}</h6>
                             <small class="text-muted">{{ movie.release_year }}</small>
@@ -52,14 +58,20 @@
                 <div class="col-md-3 col-sm-4 mb-3">
                     <div class="card movie-card bg-dark text-white"
                         data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
-                        {% if movie.poster_url %}
-                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% with poster_url=movie.get_poster_url %}
+                        {% if poster_url %}
+                        <img src="{{ poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
                         {% else %}
                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
                             style="height: 300px;">
-                            <span>{{ movie.title }}</span>
+                            <div class="text-center">
+                                <i class="fas fa-film fa-3x mb-2 text-muted"></i>
+                                <br>
+                                <span>{{ movie.title }}</span>
+                            </div>
                         </div>
                         {% endif %}
+                        {% endwith %}
                         <div class="card-body">
                             <h6 class="card-title">{{ movie.title }}</h6>
                             <small class="text-muted">{{ movie.release_year }}</small>

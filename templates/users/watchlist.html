@@ -18,13 +18,19 @@
                     </button>
                     
                     <div data-movie-url="{% url 'movies:movie_detail' item.movie.id %}" style="cursor: pointer;" class="movie-clickable">
-                        {% if item.movie.poster_url %}
-                            <img src="{{ item.movie.poster_url }}" class="card-img-top" alt="{{ item.movie.title }}">
+                        {% with poster_url=item.movie.get_poster_url %}
+                        {% if poster_url %}
+                            <img src="{{ poster_url }}" class="card-img-top" alt="{{ item.movie.title }}" style="height: 300px; object-fit: cover;">
                         {% else %}
                             <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
-                                <span class="text-center">{{ item.movie.title }}</span>
+                                <div class="text-center">
+                                    <i class="fas fa-film fa-3x mb-2 text-muted"></i>
+                                    <br>
+                                    <span>{{ item.movie.title }}</span>
+                                </div>
                             </div>
                         {% endif %}
+                        {% endwith %}
                         <div class="card-body">
                             <h6 class="card-title">{{ item.movie.title }}</h6>
                             <small class="text-muted">{{ item.movie.release_year }}</small>

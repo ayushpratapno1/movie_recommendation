@@ -74,7 +74,7 @@ TEMPLATES = [
 ]
 
 # Add login/logout redirect URLs
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = '/'
 
 
