@@ -1,0 +1,100 @@
+{% extends 'base/base.html' %}
+
+{% block title %}My Watchlist - MovieRec{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-white mb-4">My Watchlist</h1>
+    
+    {% if watchlist_items %}
+        <div class="row">
+            {% for item in watchlist_items %}
+            <div class="col-md-3 col-sm-4 mb-4">
+                <div class="card movie-card bg-dark text-white position-relative">
+                    <!-- Remove button -->
+                    <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 remove-watchlist" 
+                            data-movie-id="{{ item.movie.id }}" style="z-index: 10;">
+                        ×
+                    </button>
+                    
+                    <div data-movie-url="{% url 'movies:movie_detail' item.movie.id %}" style="cursor: pointer;" class="movie-clickable">
+                        {% if item.movie.poster_url %}
+                            <img src="{{ item.movie.poster_url }}" class="card-img-top" alt="{{ item.movie.title }}">
+                        {% else %}
+                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                <span class="text-center">{{ item.movie.title }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ item.movie.title }}</h6>
+                            <small class="text-muted">{{ item.movie.release_year }}</small>
+                            <p class="text-muted mt-1">Added {{ item.added_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4>Your watchlist is empty</h4>
+            <p>Start adding movies to your watchlist to see them here.</p>
+            <a href="{% url 'movies:home' %}" class="btn btn-primary">Browse Movies</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Movie card click handler
+document.querySelectorAll('.movie-clickable').forEach(function(div) {
+    div.addEventListener('click', function() {
+        window.location.href = this.dataset.movieUrl;
+    });
+});
+
+// Remove from watchlist
+document.querySelectorAll('.remove-watchlist').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent card click
+        const movieId = this.getAttribute('data-movie-id');
+        
+        fetch('/api/watchlist/remove/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                movie_id: movieId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the card from view
+                this.closest('.col-md-3').remove();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

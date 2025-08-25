@@ -1,0 +1,234 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ movie.title }} - MovieRec{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Movie Poster -->
+        <div class="col-md-4">
+            {% if movie.poster_url %}
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster" class="img-fluid rounded shadow">
+            {% else %}
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 500px;">
+                    <div class="text-center">
+                        <h3>{{ movie.title }}</h3>
+                        <p>No Poster Available</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Movie Details -->
+        <div class="col-md-8">
+            <div class="text-white">
+                <h1 class="display-4">{{ movie.title }} <span class="text-muted">({{ movie.release_year }})</span></h1>
+                
+                <div class="mb-3">
+                    <strong>Duration:</strong> {{ movie.duration_minutes }} minutes
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Genres:</strong> 
+                    {% for genre in movie.genres.all %}
+                        <span class="badge bg-primary me-1">{{ genre.name }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    <h4>Plot</h4>
+                    <p class="lead">{{ movie.plot }}</p>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Cast:</strong> 
+                    {% for actor in movie.cast.all %}
+                        {{ actor.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    <strong>Director(s):</strong> 
+                    {% for director in movie.directors.all %}
+                        {{ director.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Action Buttons -->
+                {% if user.is_authenticated %}
+                <div class="action-buttons mb-4">
+                    <!-- Rating Stars -->
+                    <div class="mb-3">
+                        <strong>Your Rating:</strong>
+                        <div class="star-rating" data-movie-id="{{ movie.id }}">
+                            {% for i in "12345" %}
+                                <span class="star" data-rating="{{ i }}">★</span>
+                            {% endfor %}
+                        </div>
+                        <span class="current-rating">
+                            {% if user_rating %}{{ user_rating }}/5{% else %}Not rated{% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Watchlist Button -->
+                    <button class="btn {% if in_watchlist %}btn-success{% else %}btn-outline-light{% endif %} watchlist-btn" 
+                            data-movie-id="{{ movie.id }}">
+                        {% if in_watchlist %}✓ In Watchlist{% else %}+ Add to Watchlist{% endif %}
+                    </button>
+
+                    <!-- Trailer Button -->
+                    {% if movie.trailer_url %}
+                        <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-light ms-2">
+                            ▶ Watch Trailer
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Similar Movies -->
+                {% if similar_movies %}
+                <div class="similar-movies mt-5">
+                    <h3>Similar Movies</h3>
+                    <div class="row">
+                        {% for similar in similar_movies %}
+                        <div class="col-md-2 col-sm-3 mb-3">
+                            <div class="card movie-card bg-dark text-white" data-movie-url="{% url 'movies:movie_detail' similar.id %}" style="cursor: pointer;">
+                                {% if similar.poster_url %}
+                                    <img src="{{ similar.poster_url }}" class="card-img-top" alt="{{ similar.title }}">
+                                {% else %}
+                                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <small>{{ similar.title }}</small>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body p-2">
+                                    <small class="card-title">{{ similar.title }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.star-rating .star {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.star-rating .star:hover,
+.star-rating .star.active {
+    color: #ffc107;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Star Rating System
+document.querySelectorAll('.star-rating').forEach(function(rating) {
+    const stars = rating.querySelectorAll('.star');
+    const movieId = rating.getAttribute('data-movie-id');
+    
+    stars.forEach(function(star, index) {
+        star.addEventListener('click', function() {
+            const ratingValue = index + 1;
+            
+            // Send rating to server
+            fetch('/api/rate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    movie_id: movieId,
+                    rating: ratingValue
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update star display
+                    updateStars(stars, ratingValue);
+                    document.querySelector('.current-rating').textContent = ratingValue + '/5';
+                }
+            });
+        });
+    });
+});
+
+// Watchlist Toggle
+document.querySelectorAll('.watchlist-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const movieId = this.getAttribute('data-movie-id');
+        const isInWatchlist = this.classList.contains('btn-success');
+        const url = isInWatchlist ? '/api/watchlist/remove/' : '/api/watchlist/add/';
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                movie_id: movieId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (isInWatchlist) {
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-light');
+                    this.textContent = '+ Add to Watchlist';
+                } else {
+                    this.classList.remove('btn-outline-light');
+                    this.classList.add('btn-success');
+                    this.textContent = '✓ In Watchlist';
+                }
+            }
+        });
+    });
+});
+
+function updateStars(stars, rating) {
+    stars.forEach(function(star, index) {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+// Movie card click handler
+document.querySelectorAll('.movie-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+        window.location.href = this.dataset.movieUrl;
+    });
+});
+</script>
+{% endblock %}

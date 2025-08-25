@@ -1,0 +1,94 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Search Movies - MovieRec{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-white mb-4">Search Movies</h1>
+    
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="GET" class="d-flex gap-3 flex-wrap">
+                <div class="flex-grow-1">
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="Search movies, actors, directors..." 
+                           value="{{ query }}">
+                </div>
+                
+                <select name="genre" class="form-select" style="width: auto;">
+                    <option value="">All Genres</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre.name }}" 
+                                {% if selected_genre == genre.name %}selected{% endif %}>
+                            {{ genre.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <input type="number" name="year" class="form-control" 
+                       placeholder="Year" style="width: 100px;" 
+                       value="{{ selected_year }}">
+                
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        {% if query %}
+            <h3 class="text-white mb-3">
+                Search results for "{{ query }}" 
+                {% if movies.count %}({{ movies.count }} found){% endif %}
+            </h3>
+        {% endif %}
+        
+        {% if movies %}
+            {% for movie in movies %}
+            <div class="col-md-3 col-sm-4 mb-4">
+                <div class="card movie-card bg-dark text-white" data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
+                    {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <span class="text-center">{{ movie.title }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ movie.title }}</h6>
+                        <small class="text-muted">{{ movie.release_year }}</small>
+                        <p class="card-text mt-2">{{ movie.plot|truncatewords:15 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% elif query %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <h4>No movies found</h4>
+                    <p>Try different search terms or browse by genre.</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-light">
+                    <h4>Start your search</h4>
+                    <p>Enter a movie title, actor name, or director to find movies.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Movie card click handler
+document.querySelectorAll('.movie-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+        window.location.href = this.dataset.movieUrl;
+    });
+});
+</script>
+{% endblock %}

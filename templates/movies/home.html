@@ -1,0 +1,87 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Home - Movie Recommendations{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Welcome to MovieRec</h1>
+
+        <!-- Trending Movies -->
+        <section class="mb-5">
+            <h2 class="mb-3">Trending Now</h2>
+            <div class="row movie-carousel">
+                {% for movie in trending_movies %}
+                <div class="col-md-3 col-sm-4 mb-3">
+                    <div class="card movie-card bg-dark text-white"
+                        data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
+                        {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                            style="height: 300px;">
+                            <span>{{ movie.title }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ movie.title }}</h6>
+                            <small class="text-muted">{{ movie.release_year }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Recommended Movies (for authenticated users) -->
+        {% if user.is_authenticated and recommended_movies %}
+        <section class="mb-5">
+            <h2 class="mb-3">Recommended for You</h2>
+            <div class="row movie-carousel">
+                {% for movie in recommended_movies %}
+                <div class="col-md-3 col-sm-4 mb-3">
+                    <div class="card movie-card bg-dark text-white"
+                        data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
+                        {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                            style="height: 300px;">
+                            <span>{{ movie.title }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ movie.title }}</h6>
+                            <small class="text-muted">{{ movie.release_year }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Genres -->
+        <section class="mb-5">
+            <h2 class="mb-3">Browse by Genre</h2>
+            <div class="row">
+                {% for genre in genres %}
+                <div class="col-md-2 col-sm-3 mb-2">
+                    <a href="{% url 'movies:genre_movies' genre.name %}" class="btn btn-outline-light btn-sm w-100">{{ genre.name }}</a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.movie-card').forEach(function (card) {
+            card.addEventListener('click', function () {
+                window.location.href = this.dataset.movieUrl;
+            });
+        });
+    });
+</script>
+{% endblock %}
