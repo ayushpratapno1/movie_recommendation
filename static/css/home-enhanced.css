@@ -1,0 +1,179 @@
+/* Enhanced Home Page Styles */
+
+.movie-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none !important;
+    overflow: hidden;
+    position: relative;
+}
+
+.movie-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10;
+}
+
+.movie-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.movie-card .card-img-top {
+    transition: transform 0.3s ease;
+    border-radius: 8px 8px 0 0;
+}
+
+.movie-card .card-body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 0 0 8px 8px;
+}
+
+/* Rating Badge Styles */
+.rating-badge {
+    background: linear-gradient(45deg, #ffd700, #ffed4e) !important;
+    color: #000 !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+    border: none;
+}
+
+.rating-badge i {
+    color: #ff6b00;
+}
+
+/* Section Headers */
+.section-header {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    padding: 15px 20px;
+    border-radius: 10px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 25px;
+}
+
+.section-title {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Genre Tags */
+.genre-tag {
+    background: linear-gradient(45deg, #6c757d, #495057) !important;
+    border: none;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    margin: 1px;
+    transition: all 0.2s ease;
+}
+
+.genre-tag:hover {
+    background: linear-gradient(45deg, #007bff, #0056b3) !important;
+    transform: scale(1.1);
+}
+
+/* Special Badges */
+.recommendation-badge {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    animation: pulse 2s infinite;
+}
+
+.trending-badge {
+    background: linear-gradient(45deg, #dc3545, #fd7e14) !important;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.new-badge {
+    background: linear-gradient(45deg, #6f42c1, #e83e8c) !important;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 5px #dc3545, 0 0 10px #dc3545; }
+    to { box-shadow: 0 0 10px #dc3545, 0 0 20px #dc3545; }
+}
+
+/* Responsive Grid */
+@media (min-width: 1400px) {
+    .col-xxl-2 {
+        flex: 0 0 auto;
+        width: 16.66666667%;
+    }
+}
+
+/* Loading Skeleton */
+.movie-skeleton {
+    background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Enhanced Buttons */
+.btn-enhanced {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-enhanced:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+}
+
+/* Section Spacing */
+.home-section {
+    margin-bottom: 60px;
+    padding: 0 10px;
+}
+
+/* Movie Grid */
+.movie-grid {
+    gap: 20px;
+}
+
+/* Dark Theme Enhancements */
+.bg-gradient-dark {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+}
+
+/* Scroll Animations */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Loading States */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

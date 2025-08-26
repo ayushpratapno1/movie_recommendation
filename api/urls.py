@@ -8,4 +8,11 @@ urlpatterns = [
     path('rate/', views.rate_movie, name='rate_movie'),
     path('watchlist/add/', views.add_to_watchlist, name='add_to_watchlist'),
     path('watchlist/remove/', views.remove_from_watchlist, name='remove_from_watchlist'),
+    
+    # Real-time recommendation endpoints
+    path('track/', views.track_interaction, name='track_interaction'),
+    path('realtime-recommendations/', views.get_realtime_recommendations, name='realtime_recommendations'),
+    path('dynamic-carousels/', views.get_dynamic_carousels, name='dynamic_carousels'),
+    path('user-insights/', views.get_user_insights, name='user_insights'),
+    path('refresh/', views.refresh_recommendations, name='refresh_recommendations'),
 ]

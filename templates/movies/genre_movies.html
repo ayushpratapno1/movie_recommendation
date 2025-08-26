@@ -1,0 +1,64 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ genre.name }} Movies - MovieRec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4 text-white">{{ genre.name }} Movies</h1>
+        
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
+        {% if movies %}
+            <div class="row">
+                {% for movie in movies %}
+                    <div class="col-md-3 col-sm-4 mb-4">
+                        <div class="card movie-card bg-dark text-white" 
+                             data-movie-url="{% url 'movies:movie_detail' movie.id %}"
+                             style="cursor: pointer;">
+                            {% if movie.poster_url %}
+                                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <i class="fas fa-film fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ movie.title }}</h6>
+                                <small class="text-muted">{{ movie.release_year }}</small>
+                                <div class="mt-1">
+                                    {% for genre in movie.genres.all %}
+                                        <span class="badge bg-primary me-1" style="font-size: 0.7em;">{{ genre.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-film fa-4x mb-3"></i>
+                <p>No movies found for this genre.</p>
+                <a href="{% url 'movies:home' %}" class="btn btn-primary">Browse All Movies</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Movie card click handlers
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.movie-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            const url = this.getAttribute('data-movie-url');
+            window.location.href = url;
+        });
+    });
+});
+</script>
+{% endblock %}

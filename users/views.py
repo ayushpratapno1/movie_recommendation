@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from django.contrib import messages
-from .models import UserProfile, Watchlist, Rating
+from .models import UserPreference, Watchlist, Rating
 from movies.models import Genre, Movie
 
 def signup(request):
@@ -12,8 +12,8 @@ def signup(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Create user profile
-            UserProfile.objects.create(user=user)
+            # Create user preferences
+            UserPreference.objects.create(user=user)
             login(request, user)
             return redirect('movies:home')
     else:
@@ -22,24 +22,33 @@ def signup(request):
 
 @login_required
 def profile(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    profile, created = UserPreference.objects.get_or_create(user=request.user)
     
     # Handle profile updates
     if request.method == 'POST':
-        # Update favorite genres
+        # Update genre preferences
         selected_genres = request.POST.getlist('favorite_genres')
-        profile.favorite_genres.set(Genre.objects.filter(id__in=selected_genres))
+        if selected_genres:
+            # Convert selected genres to preference weights
+            genre_prefs = {}
+            for genre_id in selected_genres:
+                try:
+                    genre = Genre.objects.get(id=genre_id)
+                    genre_prefs[genre.name] = 0.8  # High preference weight
+                except Genre.DoesNotExist:
+                    continue
+            profile.genre_preferences = genre_prefs
         
-        # Update preferred decade
-        preferred_decade = request.POST.get('preferred_decade')
-        if preferred_decade:
-            profile.preferred_decade = preferred_decade
-        
-        # Update dark mode preference
-        profile.dark_mode = 'dark_mode' in request.POST
+        # Update preference settings
+        base_weight = request.POST.get('base_preference_weight')
+        if base_weight:
+            try:
+                profile.base_preference_weight = float(base_weight)
+            except ValueError:
+                pass
         
         profile.save()
-        messages.success(request, 'Profile updated successfully!')
+        messages.success(request, 'Preferences updated successfully!')
         return redirect('users:profile')
     
     # Get user statistics

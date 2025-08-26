@@ -68,6 +68,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}
     {% endblock %}
+    
+    <!-- Real-time Recommendation System -->
+    {% if user.is_authenticated %}
+    {% load static %}
+    <script src="{% static 'js/realtime-recommendations.js' %}"></script>
+    {% endif %}
 </body>
 
 </html>

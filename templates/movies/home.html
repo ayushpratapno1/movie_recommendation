@@ -1,109 +1,347 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
-{% block title %}Home - Movie Recommendations{% endblock %}
+{% block title %}Home - MovieRec{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home-enhanced.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home-enhanced.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <!-- Messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+        <h1 class="mb-4 text-white">
+            {% if user.is_authenticated %}
+                Welcome back, {{ user.username }}!
+            {% else %}
+                Welcome to MovieRec
+            {% endif %}
+        </h1>
         
-        <h1 class="mb-4">Welcome to MovieRec</h1>
-
-        <!-- Trending Movies -->
-        <section class="mb-5">
-            <h2 class="mb-3">Trending Now</h2>
-            <div class="row movie-carousel">
-                {% for movie in trending_movies %}
-                <div class="col-md-3 col-sm-4 mb-3">
-                    <div class="card movie-card bg-dark text-white"
-                        data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
-                        {% with poster_url=movie.get_poster_url %}
-                        {% if poster_url %}
-                        <img src="{{ poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
-                        {% else %}
-                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
-                            style="height: 300px;">
-                            <div class="text-center">
-                                <i class="fas fa-film fa-3x mb-2 text-muted"></i>
-                                <br>
-                                <span>{{ movie.title }}</span>
-                            </div>
-                        </div>
+        <!-- **Personalized Section** (Only for authenticated users) -->
+        {% if user.is_authenticated %}
+        <section class="mb-5 personalized-movies">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="text-white">
+                    Recommended For You 
+                    <small class="text-muted">
+                        {% if user_preferred_genres %}
+                            (Based on your love for {{ user_preferred_genres|join:", " }})
                         {% endif %}
-                        {% endwith %}
-                        <div class="card-body">
-                            <h6 class="card-title">{{ movie.title }}</h6>
-                            <small class="text-muted">{{ movie.release_year }}</small>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+                    </small>
+                </h2>
+                <button class="btn btn-outline-light btn-sm" onclick="window.realtimeRecommendations?.forceRefresh()">
+                    <i class="fas fa-refresh"></i> Refresh
+                </button>
             </div>
-        </section>
-
-        <!-- Recommended Movies (for authenticated users) -->
-        {% if user.is_authenticated and recommended_movies %}
-        <section class="mb-5">
-            <h2 class="mb-3">Recommended for You</h2>
             <div class="row movie-carousel">
-                {% for movie in recommended_movies %}
-                <div class="col-md-3 col-sm-4 mb-3">
-                    <div class="card movie-card bg-dark text-white"
-                        data-movie-url="{% url 'movies:movie_detail' movie.id %}" style="cursor: pointer;">
-                        {% with poster_url=movie.get_poster_url %}
-                        {% if poster_url %}
-                        <img src="{{ poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
-                        {% else %}
-                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
-                            style="height: 300px;">
-                            <div class="text-center">
-                                <i class="fas fa-film fa-3x mb-2 text-muted"></i>
-                                <br>
-                                <span>{{ movie.title }}</span>
+                {% for movie in personalized_movies %}
+                    <div class="col-md-3 col-sm-4 mb-3">
+                        <div class="card movie-card bg-dark text-white" 
+                             data-movie-id="{{ movie.id }}" 
+                             data-source="personalized"
+                             data-movie-url="{% url 'movies:movie_detail' movie.id %}"
+                             style="cursor: pointer;">
+                            {% if movie.poster_url %}
+                                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <i class="fas fa-film fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ movie.title }}</h6>
+                                <small class="text-muted">{{ movie.release_year }}</small>
+                                <div class="mt-1">
+                                    {% for genre in movie.genres.all %}
+                                        <span class="badge bg-primary me-1" style="font-size: 0.7em;">{{ genre.name }}</span>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
-                        {% endif %}
-                        {% endwith %}
-                        <div class="card-body">
-                            <h6 class="card-title">{{ movie.title }}</h6>
-                            <small class="text-muted">{{ movie.release_year }}</small>
-                        </div>
                     </div>
-                </div>
+                {% empty %}
+                    <div class="col-12 text-center text-muted py-4">
+                        <i class="fas fa-magic fa-3x mb-3"></i>
+                        <p>Start rating movies to get personalized recommendations!</p>
+                    </div>
                 {% endfor %}
             </div>
         </section>
         {% endif %}
 
-        <!-- Genres -->
+        <!-- **Dynamic Genre Carousels** (Based on user preferences) -->
+        <div class="genre-carousels">
+            {% for carousel in genre_carousels %}
+            <section class="mb-5">
+                <h2 class="mb-3 text-white">
+                    {{ carousel.title }}
+                    <small class="text-muted">{{ carousel.subtitle }}</small>
+                </h2>
+                <div class="row movie-carousel">
+                    {% for movie in carousel.movies %}
+                        <div class="col-md-3 col-sm-4 mb-3">
+                            <div class="card movie-card bg-dark text-white" 
+                                 data-movie-id="{{ movie.id }}" 
+                                 data-source="genre-{{ carousel.genre }}"
+                                 data-movie-url="{% url 'movies:movie_detail' movie.id %}"
+                                 style="cursor: pointer;">
+                                {% if movie.poster_url %}
+                                    <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                        <i class="fas fa-film fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ movie.title }}</h6>
+                                    <small class="text-muted">{{ movie.release_year }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+
+        <!-- **Trending Movies** -->
+        <section class="home-section">
+            <div class="section-header">
+                <h2 class="section-title mb-0">
+                    <i class="fas fa-fire text-danger me-2"></i>Trending Now
+                    <small class="text-muted ms-2 fs-6">What everyone's watching</small>
+                </h2>
+            </div>
+            <div class="row movie-grid">
+                {% for movie in trending_movies %}
+                    {% include 'movies/movie_card_macro.html' with movie=movie source='trending' badge_type='trending' %}
+                {% empty %}
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="fas fa-fire fa-3x mb-3 opacity-50"></i>
+                        <p>No trending movies found. Check back later!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- **Top Rated Movies** -->
+        {% if top_rated_movies %}
+        <section class="home-section">
+            <div class="section-header">
+                <h2 class="section-title mb-0">
+                    <i class="fas fa-crown text-warning me-2"></i>Top Rated Movies
+                    <small class="text-muted ms-2 fs-6">Highest rated by users</small>
+                </h2>
+            </div>
+            <div class="row movie-grid">
+                {% for movie in top_rated_movies %}
+                    {% include 'movies/movie_card_macro.html' with movie=movie source='top-rated' badge_type='top' %}
+                {% empty %}
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="fas fa-crown fa-3x mb-3 opacity-50"></i>
+                        <p>No top rated movies found yet!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- **Recently Added Movies** -->
+        {% if recent_movies %}
+        <section class="home-section">
+            <div class="section-header">
+                <h2 class="section-title mb-0">
+                    <i class="fas fa-plus-circle text-success me-2"></i>Recently Added
+                    <small class="text-muted ms-2 fs-6">Fresh content for you</small>
+                </h2>
+            </div>
+            <div class="row movie-grid">
+                {% for movie in recent_movies %}
+                    {% include 'movies/movie_card_macro.html' with movie=movie source='recent' badge_type='new' %}
+                {% empty %}
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="fas fa-plus-circle fa-3x mb-3 opacity-50"></i>
+                        <p>No recently added movies!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- **Genre Sections** -->
+        {% for section in genre_sections %}
         <section class="mb-5">
-            <h2 class="mb-3">Browse by Genre</h2>
+            <h2 class="mb-3 text-white">🎭 {{ section.title }}</h2>
+            <div class="row movie-carousel">
+                {% for movie in section.movies %}
+                    <div class="col-md-3 col-sm-4 col-6 mb-3">
+                        <div class="card movie-card bg-dark text-white" 
+                             data-movie-id="{{ movie.id }}" 
+                             data-source="genre-{{ section.genre }}"
+                             data-movie-url="{% url 'movies:movie_detail' movie.id %}"
+                             style="cursor: pointer;">
+                            {% if movie.poster_url %}
+                                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <i class="fas fa-film fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ movie.title }}</h6>
+                                <small class="text-muted">{{ movie.release_year }}</small>
+                                {% if movie.average_rating > 0 %}
+                                    <div class="mt-1">
+                                        <small class="text-warning">★ {{ movie.average_rating }}/5</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+
+        <!-- **Decade Sections** -->
+        {% for section in decade_sections %}
+        <section class="mb-5">
+            <h2 class="mb-3 text-white">📅 {{ section.title }}</h2>
+            <div class="row movie-carousel">
+                {% for movie in section.movies %}
+                    <div class="col-md-3 col-sm-4 col-6 mb-3">
+                        <div class="card movie-card bg-dark text-white" 
+                             data-movie-id="{{ movie.id }}" 
+                             data-source="decade-{{ section.decade }}"
+                             data-movie-url="{% url 'movies:movie_detail' movie.id %}"
+                             style="cursor: pointer;">
+                            {% if movie.poster_url %}
+                                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <i class="fas fa-film fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ movie.title }}</h6>
+                                <small class="text-muted">{{ movie.release_year }}</small>
+                                {% if movie.average_rating > 0 %}
+                                    <div class="mt-1">
+                                        <small class="text-warning">★ {{ movie.average_rating }}/5</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+
+        <!-- **Browse by Genre** -->
+        <section class="mb-5">
+            <h2 class="mb-3 text-white">Browse by Genre</h2>
             <div class="row">
                 {% for genre in genres %}
-                <div class="col-md-2 col-sm-3 mb-2">
-                    <a href="{% url 'movies:genre_movies' genre.name %}" class="btn btn-outline-light btn-sm w-100">{{ genre.name }}</a>
-                </div>
+                    <div class="col-md-2 col-sm-3 mb-2">
+                        <a href="{% url 'movies:genre_movies' genre.name %}" 
+                           class="btn btn-outline-light btn-sm w-100"
+                           onclick="trackGenreClick('{{ genre.name }}')">
+                            {{ genre.name }}
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
         </section>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.movie-card').forEach(function (card) {
-            card.addEventListener('click', function () {
-                window.location.href = this.dataset.movieUrl;
-            });
+// Movie card click handlers
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.movie-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            const movieId = this.getAttribute('data-movie-id');
+            const source = this.getAttribute('data-source');
+            const url = this.getAttribute('data-movie-url');
+            
+            trackAndNavigate(movieId, source, url);
         });
     });
+});
+
+// Real-time interaction tracking
+function trackAndNavigate(movieId, source, url) {
+    // Check if the real-time system is available and use it, otherwise fallback
+    if (window.realtimeRecommendations) {
+        // Use the advanced real-time system
+        const element = {dataset: {movieId: movieId, source: source}};
+        window.realtimeRecommendations.trackInteraction(element, 'click');
+    } else {
+        // Fallback to direct API call
+        fetch('/api/track/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                movie_id: movieId,
+                interaction_type: 'click',
+                context: {
+                    page: 'home',
+                    source: source
+                }
+            })
+        });
+    }
+    
+    // Navigate to movie detail
+    setTimeout(() => {
+        window.location.href = url;
+    }, 100); // Small delay to ensure tracking completes
+}
+
+function trackGenreClick(genreName) {
+    // Track genre browsing preference
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'genre_browse', {
+            'genre': genreName
+        });
+    }
+}
+
+// CSRF token helper
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Auto-refresh recommendations every 5 minutes to show real-time changes
+if (document.querySelector('.personalized-movies')) {
+    setTimeout(function() {
+        setInterval(function() {
+            // Subtle refresh of recommendation sections
+            console.log('Preferences may have updated - consider refreshing');
+        }, 300000); // 5 minutes
+    }, 1000);
+}
 </script>
 {% endblock %}

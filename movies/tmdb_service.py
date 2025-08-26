@@ -17,6 +17,11 @@ class TMDbService:
     @classmethod
     def search_movie(cls, title, year=None):
         """Search for a movie by title and optional year"""
+        # Check if TMDb API is enabled
+        if not getattr(settings, 'TMDB_API_ENABLED', False):
+            logger.debug(f"TMDb API disabled, skipping search for '{title}'")
+            return None
+            
         try:
             params = {
                 'api_key': cls.API_KEY,
@@ -27,7 +32,7 @@ class TMDbService:
             if year:
                 params['year'] = year
             
-            response = requests.get(f"{cls.BASE_URL}/search/movie", params=params, timeout=10)
+            response = requests.get(f"{cls.BASE_URL}/search/movie", params=params, timeout=5)
             response.raise_for_status()
             
             data = response.json()
@@ -36,16 +41,21 @@ class TMDbService:
             if results:
                 return results[0]  # Return the first (most relevant) result
             
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error searching for movie '{title}': {e}")
+        except (requests.exceptions.RequestException, requests.exceptions.Timeout, ConnectionError) as e:
+            logger.debug(f"TMDb API unavailable for movie '{title}': {e}")
         except Exception as e:
-            logger.error(f"Unexpected error searching for movie '{title}': {e}")
+            logger.warning(f"Unexpected error searching for movie '{title}': {e}")
         
         return None
     
     @classmethod
     def get_movie_details(cls, tmdb_id):
         """Get detailed movie information by TMDb ID"""
+        # Check if TMDb API is enabled
+        if not getattr(settings, 'TMDB_API_ENABLED', False):
+            logger.debug(f"TMDb API disabled, skipping details for ID '{tmdb_id}'")
+            return None
+            
         try:
             params = {
                 'api_key': cls.API_KEY,
@@ -67,6 +77,11 @@ class TMDbService:
     @classmethod
     def get_poster_url(cls, tmdb_id=None, poster_path=None):
         """Get full poster URL from TMDb ID or poster path"""
+        # Check if TMDb API is enabled (only for API calls, not for building URLs)
+        if tmdb_id and not getattr(settings, 'TMDB_API_ENABLED', False):
+            logger.debug(f"TMDb API disabled, skipping poster fetch for ID '{tmdb_id}'")
+            return None
+            
         try:
             if poster_path:
                 # If we already have the poster path, just build the full URL

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from movies.models import Movie, Genre, Person
-from users.models import UserProfile, Rating, Watchlist
+from users.models import UserPreference, Rating, Watchlist
 
 class Command(BaseCommand):
     help = 'Populate database with sample data'
@@ -97,13 +97,13 @@ class Command(BaseCommand):
         # Create sample user profile (if user exists)
         try:
             user = User.objects.get(username='ayush')
-            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile, created = UserPreference.objects.get_or_create(user=user)
             if created:
-                profile.favorite_genres.set(Genre.objects.filter(name__in=["Sci-Fi", "Drama"]))
-                profile.preferred_decade = "2010s"
-                profile.dark_mode = True
+                # Set initial genre preferences
+                profile.genre_preferences = {"Sci-Fi": 0.8, "Drama": 0.7, "Action": 0.6}
+                profile.base_preference_weight = 0.5
                 profile.save()
-                self.stdout.write('Created user profile')
+                self.stdout.write('Created user preferences')
             
             # Add sample ratings
             inception = Movie.objects.get(title="Inception")
