@@ -96,16 +96,20 @@ Usage: {% include 'movies/movie_card_macro.html' with movie=movie source=source 
             <!-- Quick Actions (Hidden by default, shown on hover) -->
             <div class="quick-actions mt-2 opacity-0" style="transition: opacity 0.3s ease;">
                 <div class="btn-group w-100" role="group">
-                    <button type="button" class="btn btn-outline-light btn-sm flex-fill" 
-                            onclick="addToWatchlist({{ movie.id }})" title="Add to Watchlist">
+                    <button type="button" class="btn btn-outline-light btn-sm flex-fill watchlist-btn" 
+                            data-movie-id="{{ movie.id }}" 
+                            data-action="add"
+                            title="Add to Watchlist">
                         <i class="fas fa-bookmark"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-warning btn-sm flex-fill" 
-                            onclick="showRatingModal({{ movie.id }})" title="Rate Movie">
+                    <button type="button" class="btn btn-outline-warning btn-sm flex-fill rating-btn" 
+                            data-movie-id="{{ movie.id }}" 
+                            title="Rate Movie">
                         <i class="fas fa-star"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-info btn-sm flex-fill" 
-                            onclick="shareMovie({{ movie.id }})" title="Share">
+                    <button type="button" class="btn btn-outline-info btn-sm flex-fill share-btn" 
+                            data-movie-id="{{ movie.id }}" 
+                            title="Share">
                         <i class="fas fa-share"></i>
                     </button>
                 </div>
@@ -121,5 +125,23 @@ Usage: {% include 'movies/movie_card_macro.html' with movie=movie source=source 
 
 .movie-card:hover .quick-actions {
     opacity: 1 !important;
+}
+
+.quick-actions .btn {
+    transition: all 0.2s ease;
+}
+
+.quick-actions .btn:hover {
+    transform: scale(1.05);
+}
+
+.watchlist-btn.added {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+.watchlist-btn.added i {
+    color: white !important;
 }
 </style>

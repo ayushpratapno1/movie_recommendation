@@ -4,6 +4,41 @@
 /env/
 /.env
 
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# AI Model Files (Large - 2.5GB+)
+ai_models/models/*.keras
+ai_models/models/*.h5
+ai_models/models/*.pkl
+ai_models/models/*.joblib
+ai_models/models/*.pth
+ai_models/models/*.pt
+ai_models/models/*.onnx
+ai_models/models/*.pb
+ai_models/models/*.tflite
+ai_models/models/*.safetensors
+ai_models/models/*.bin
+ai_models/models/*.ckpt
+ai_models/models/*.weights
+
+# Large Data Files
+*.csv
+*.json
+*.parquet
+*.feather
+*.hdf5
+*.h5
+*.npz
+*.npy
+*.pkl
+*.pickle
 # Python bytecode and cache
 __pycache__/
 *.pyc

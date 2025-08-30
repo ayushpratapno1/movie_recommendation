@@ -1,4 +1,5 @@
 from .models import UserPreference, UserInteraction, Rating
+from .model_service import HybridModelService
 from movies.models import Movie, Genre
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -23,7 +24,123 @@ class RealTimePreferenceService:
         'search': 0.1,
         'recommendation_click': 0.3,
     }
+    @staticmethod
+    def get_hybrid_recommendations(user, limit=20):
+      """
+      ENHANCED: Combine your real-time preferences with NCF predictions
+      This is the heart of your upgraded recommendation system
+      """
+      # Determine strategy weights based on user engagement
+      interaction_count = UserInteraction.objects.filter(user=user).count()
+      # Determine strategy weights based on user engagement
+      if interaction_count < 5:  # New users
+        weights = {
+            'ncf': 0.25,           # Limited collaborative data
+            'realtime': 0.35,      # Your existing preference learning
+            'content': 0.25,       # Genre-based recommendations
+            'popularity': 0.15     # Safe popular choices
+        }
+      elif interaction_count < 50:  # Active users
+        weights = {
+            'ncf': 0.45,           # Strong collaborative patterns
+            'realtime': 0.35,      # Your preference learning
+            'content': 0.15,       # Genre diversity
+            'popularity': 0.05     # Trending content
+        }
+      else:  # Power users
+        weights = {
+            'ncf': 0.50,           # Primary collaborative engine
+            'realtime': 0.35,      # Your real-time insights
+            'content': 0.10,       # Exploration
+            'popularity': 0.05     # Serendipity
+        }
     
+      # Collect recommendations from each strategy
+      recommendations_pool = {}
+    
+      # 1. Get NCF recommendations (your new world-class engine)
+      if weights['ncf'] > 0:
+        try:
+            ncf_recs = HybridModelService.get_cached_ncf_recommendations(user, limit * 2)
+            for i, movie in enumerate(ncf_recs):
+                score = weights['ncf'] * (1.0 - i / len(ncf_recs)) if ncf_recs else 0
+                recommendations_pool[movie.id] = recommendations_pool.get(movie.id, 0) + score
+        except Exception as e:
+            logger.warning(f"NCF recommendations failed: {e}")
+    
+      # 2. Get your existing real-time recommendations
+      if weights['realtime'] > 0:
+        try:
+            realtime_recs = RealTimePreferenceService.get_personalized_recommendations(user, limit * 2)
+            for i, movie in enumerate(realtime_recs):
+                score = weights['realtime'] * (1.0 - i / len(realtime_recs)) if realtime_recs else 0
+                recommendations_pool[movie.id] = recommendations_pool.get(movie.id, 0) + score
+        except Exception as e:
+            logger.warning(f"Realtime recommendations failed: {e}")
+    
+      # 3. Get content-based recommendations (FIXED LOGIC)
+      if weights['content'] > 0:
+        try:
+            user_pref = UserPreference.objects.get(user=user)
+            genre_preferences = user_pref.genre_preferences or {}
+            if genre_preferences:
+                content_recs = RealTimePreferenceService._get_weighted_recommendations(user, genre_preferences, limit)
+                for i, movie in enumerate(content_recs):
+                    score = weights['content'] * (1.0 - i / len(content_recs)) if content_recs else 0
+                    recommendations_pool[movie.id] = recommendations_pool.get(movie.id, 0) + score
+        except UserPreference.DoesNotExist:
+            # Fallback to personalized recommendations if no preferences exist
+            try:
+                content_recs = RealTimePreferenceService.get_personalized_recommendations(user, limit)
+                for i, movie in enumerate(content_recs):
+                    score = weights['content'] * (1.0 - i / len(content_recs)) if content_recs else 0
+                    recommendations_pool[movie.id] = recommendations_pool.get(movie.id, 0) + score
+            except Exception as e:
+                logger.warning(f"Content recommendations failed: {e}")
+    
+      # 4. Get popularity-based recommendations
+      if weights['popularity'] > 0:
+        try:
+            popular_recs = RealTimePreferenceService._get_trending_movies(limit)
+            for i, movie in enumerate(popular_recs):
+                score = weights['popularity'] * (1.0 - i / len(popular_recs)) if popular_recs else 0
+                recommendations_pool[movie.id] = recommendations_pool.get(movie.id, 0) + score
+        except Exception as e:
+            logger.warning(f"Popular recommendations failed: {e}")
+    
+      # Sort by combined score and return top recommendations
+      if not recommendations_pool:
+        # Ultimate fallback: return trending movies
+        logger.warning("No recommendations generated from any strategy, falling back to trending")
+        return RealTimePreferenceService._get_trending_movies(limit)
+    
+      sorted_recommendations = sorted(recommendations_pool.items(), key=lambda x: x[1], reverse=True)
+    
+      # Get Movie objects maintaining order
+      final_movie_ids = [movie_id for movie_id, score in sorted_recommendations[:limit]]
+      movies = Movie.objects.filter(id__in=final_movie_ids)
+    
+      # Maintain scoring order
+      movie_dict = {movie.id: movie for movie in movies}
+      final_movies = [movie_dict[movie_id] for movie_id in final_movie_ids if movie_id in movie_dict]
+    
+      return final_movies
+
+    
+    @staticmethod
+    def get_cached_hybrid_recommendations(user, limit=20):
+        """Cached version of hybrid recommendations"""
+        cache_key = f"hybrid_recommendations_{user.id}_{limit}"
+        cached = cache.get(cache_key)
+        
+        if cached is not None:
+            return cached
+        
+        recommendations = RealTimePreferenceService.get_hybrid_recommendations(user, limit)
+        cache.set(cache_key, recommendations, 900)  # Cache for 15 minutes
+        
+        return recommendations
+
     @staticmethod
     def track_interaction(user, movie, interaction_type, rating_value=None, context=None):
         """Track user interaction and update preferences immediately"""
@@ -284,3 +401,4 @@ class RealTimePreferenceService:
                 training_data.append(user_data)
         
         return training_data
+    

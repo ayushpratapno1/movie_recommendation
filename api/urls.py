@@ -15,4 +15,6 @@ urlpatterns = [
     path('dynamic-carousels/', views.get_dynamic_carousels, name='dynamic_carousels'),
     path('user-insights/', views.get_user_insights, name='user_insights'),
     path('refresh/', views.refresh_recommendations, name='refresh_recommendations'),
+    path('hybrid-recommendations/', views.get_hybrid_recommendations, name='hybrid_recommendations'),
+    path('ncf-similar/<int:movie_id>/', views.get_ncf_similar_movies, name='ncf_similar_movies'),
 ]

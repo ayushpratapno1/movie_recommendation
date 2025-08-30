@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',  # For APIs
     'users',
     'movies',
-    'recommendations',
+    # 'recommendations',  # Remove this line
     'api',
 ]
 
@@ -166,3 +166,75 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # TMDb API Configuration
 TMDB_API_ENABLED = os.environ.get('TMDB_API_ENABLED', 'False').lower() == 'true'
 TMDB_API_KEY = os.environ.get('TMDB_API_KEY', '8265bd1679663a7ea12ac168da84d2e8')
+
+# NCF Model Configuration
+NCF_MODEL_ENABLED = True
+NCF_MODEL_PATH = os.path.join(BASE_DIR, 'ai_models', 'models', 'max_performance_ncf.keras')
+NCF_USER_ENCODER_PATH = os.path.join(BASE_DIR, 'ai_models', 'models', 'user_encoder.pkl')
+NCF_MOVIE_ENCODER_PATH = os.path.join(BASE_DIR, 'ai_models', 'models', 'movie_encoder.pkl')
+
+# Enhanced Caching Configuration
+# REPLACE your current CACHES configuration with this:
+# Fallback to simple in-memory cache for testing
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+
+
+# Enhanced Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'ai_models': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'users': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'movies': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+# Create logs directory
+os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)

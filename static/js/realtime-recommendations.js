@@ -30,27 +30,29 @@ class RealtimeRecommendationSystem {
             }
         });
 
-        // Rating interactions
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('star')) {
-                const movieId = e.target.closest('[data-movie-id]')?.dataset.movieId;
-                const rating = parseInt(e.target.dataset.rating);
-                if (movieId && rating) {
-                    this.trackInteraction({dataset: {movieId}}, 'rate', rating);
-                }
-            }
-        });
+        // Rating interactions - REMOVED to avoid duplicate tracking
+        // The rating API now handles tracking internally
+        // document.addEventListener('click', (e) => {
+        //     if (e.target.classList.contains('star')) {
+        //         const movieId = e.target.closest('[data-movie-id]')?.dataset.movieId;
+        //         const rating = parseInt(e.target.dataset.rating);
+        //         if (movieId && rating) {
+        //             this.trackInteraction({dataset: {movieId}}, 'rate', rating);
+        //         }
+        //     }
+        // });
 
-        // Watchlist interactions
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('watchlist-btn')) {
-                const movieId = e.target.dataset.movieId;
-                const action = e.target.classList.contains('add') ? 'watchlist_add' : 'watchlist_remove';
-                if (movieId) {
-                    this.trackInteraction({dataset: {movieId}}, action);
-                }
-            }
-        });
+        // Watchlist interactions - REMOVED to avoid duplicate tracking
+        // The watchlist API endpoints now handle tracking internally
+        // document.addEventListener('click', (e) => {
+        //     if (e.target.classList.contains('watchlist-btn')) {
+        //         const movieId = e.target.dataset.movieId;
+        //         const action = e.target.classList.contains('add') ? 'watchlist_add' : 'watchlist_remove';
+        //         if (movieId) {
+        //             this.trackInteraction({dataset: {movieId}}, action);
+        //         }
+        //     }
+        // });
 
         // Search interactions
         const searchForm = document.querySelector('#search-form');
