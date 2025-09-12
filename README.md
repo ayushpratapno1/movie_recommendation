@@ -1,159 +1,473 @@
-Movie Recommendation System (Django)
+# 🎬 Advanced Movie Recommendation System
 
 Overview
-This project solves “what should I watch next?” by delivering personalized, real‑time movie recommendations. It learns from user behavior instantly (clicks, ratings, watchlist actions, page views), blends content signals (genres, year) and popularity, and provides robust fallbacks for cold‑start users. The goal is a production‑style, demo‑ready app with a Netflix‑like UI.
+This project solves “what should I watch next?” by delivering personalized, real‑time movie recommendations. A sophisticated, real-time movie recommendation engine built with Django that learns from user behavior and adapts recommendations instantly. Features hybrid AI-powered recommendations, Netflix-like UI, and production-ready architecture.
 
-Key Features
-- Personalized, real‑time recommendations that adapt after every interaction
-- Login/Signup; Profile with editable preferences and statistics
-- Ratings (1–5 stars) with persistent UI; Watchlist add/remove
-- Search, Genre pages, Similar movies
-- Rich Home UI (carousels), dynamic genre sections, trending/top rated/recent
-- TMDb posters integration with caching and fallback behavior
-- Secure APIs with CSRF; production‑minded settings toggles
-- Optional AI training/export for advanced hybrid recommendations
+## 🌟 Key Features
 
-Tech Stack
-- Backend: Django, Django REST Framework
-- Frontend: Django templates, HTML, CSS (Bootstrap), vanilla JS
-- ML/RecSys: Python, scikit‑learn (optional), feature export for training
-- Data: TMDb (posters), your catalog via management commands
-- Optional: Celery/Redis for batch jobs; Hugging Face for model hosting
+### 🧠 Intelligent Recommendation Engine
+- **Real-time Learning**: Adapts recommendations after every user interaction
+- **Hybrid AI System**: Combines Neural Collaborative Filtering (NCF) with real-time preference learning
+- **Multi-Strategy Approach**: Content-based, collaborative filtering, and popularity-based recommendations
+- **Smart Fallbacks**: Graceful handling for new users and cold-start scenarios
 
-Architecture (What Runs Where)
-- movie_recsys/settings.py: Security flags, static files, TMDb keys, auth redirects
-- movies/models.py: Movie, Genre, tmdb_id, Movie.get_poster_url() with caching/fallbacks
-- movies/views.py: index, home, movie_detail, search, genre_movies, click tracking
-- movies/tmdb_service.py: Safe TMDb fetches (timeouts, error handling, enable flag)
-- movies/management/commands/: populate_popular_movies, smart_movie_discovery, setup_sample_posters
-- users/models.py: UserPreference (JSONField + time‑decay), Rating, Watchlist, UserInteraction
-- users/preference_service.py: Real‑time learning and recommendation logic
-- users/views.py: Signup, logout, profile (stats + editable preferences)
-- api/urls.py, api/views.py: Endpoints for tracking, recommendations, carousels, insights
-- templates/: base, home, movie_detail, index (landing), profile, macros
-- static/: JS for real‑time updates and enhanced UI; CSS for modern cards and carousels
-- ai_model_integration_example.py: Optional RandomForest pipeline for advanced hybrid
+### 🎯 User Experience
+- **Netflix-like Interface**: Modern, responsive UI with movie carousels and cards
+- **Personalized Homepage**: Dynamic sections based on user preferences
+- **Interactive Features**: Star ratings, watchlist management, movie search
+- **Real-time Updates**: Recommendations refresh automatically as users interact
 
-Getting Started
+### 🔧 Technical Excellence
+- **Production-Ready**: Security headers, CSRF protection, optimized caching
+- **Scalable Architecture**: Modular design with separate apps for movies, users, and API
+- **AI Integration**: TensorFlow/Keras models with scikit-learn fallbacks
+- **Performance Optimized**: Intelligent caching, database optimization, and efficient queries
 
-Prerequisites
+## 🏗️ Architecture Overview
+# 🎬 Advanced Movie Recommendation System
 
-Python 3.10+ and pip/venv.
+A sophisticated, real-time movie recommendation engine built with Django that learns from user behavior and adapts recommendations instantly. Features hybrid AI-powered recommendations, Netflix-like UI, and production-ready architecture.
 
-Git.
+## 🌟 Key Features
 
-Optional: Redis (for Celery) and a Hugging Face token if loading a private model.
+### 🧠 Intelligent Recommendation Engine
+- **Real-time Learning**: Adapts recommendations after every user interaction
+- **Hybrid AI System**: Combines Neural Collaborative Filtering (NCF) with real-time preference learning
+- **Multi-Strategy Approach**: Content-based, collaborative filtering, and popularity-based recommendations
+- **Smart Fallbacks**: Graceful handling for new users and cold-start scenarios
 
-Installation
+### 🎯 User Experience
+- **Netflix-like Interface**: Modern, responsive UI with movie carousels and cards
+- **Personalized Homepage**: Dynamic sections based on user preferences
+- **Interactive Features**: Star ratings, watchlist management, movie search
+- **Real-time Updates**: Recommendations refresh automatically as users interact
 
-Clone repository
+### 🔧 Technical Excellence
+- **Production-Ready**: Security headers, CSRF protection, optimized caching
+- **Scalable Architecture**: Modular design with separate apps for movies, users, and API
+- **AI Integration**: TensorFlow/Keras models with scikit-learn fallbacks
+- **Performance Optimized**: Intelligent caching, database optimization, and efficient queries
 
-git clone <your-repo-url> && cd movie-recsys
+## 🏗️ Architecture Overview
+# 🎬 Advanced Movie Recommendation System
 
-Create and activate virtual env
+A sophisticated, real-time movie recommendation engine built with Django that learns from user behavior and adapts recommendations instantly. Features hybrid AI-powered recommendations, Netflix-like UI, and production-ready architecture.
 
-python -m venv venv
-# Windows
-venv\Scripts\activate
+## 🌟 Key Features
 
-Install dependencies
+### 🧠 Intelligent Recommendation Engine
+- **Real-time Learning**: Adapts recommendations after every user interaction
+- **Hybrid AI System**: Combines Neural Collaborative Filtering (NCF) with real-time preference learning
+- **Multi-Strategy Approach**: Content-based, collaborative filtering, and popularity-based recommendations
+- **Smart Fallbacks**: Graceful handling for new users and cold-start scenarios
 
-pip install -r requirements.txt
+### 🎯 User Experience
+- **Netflix-like Interface**: Modern, responsive UI with movie carousels and cards
+- **Personalized Homepage**: Dynamic sections based on user preferences
+- **Interactive Features**: Star ratings, watchlist management, movie search
+- **Real-time Updates**: Recommendations refresh automatically as users interact
 
-Environment variables (example)
+### 🔧 Technical Excellence
+- **Production-Ready**: Security headers, CSRF protection, optimized caching
+- **Scalable Architecture**: Modular design with separate apps for movies, users, and API
+- **AI Integration**: TensorFlow/Keras models with scikit-learn fallbacks
+- **Performance Optimized**: Intelligent caching, database optimization, and efficient queries
 
-DJANGO_SECRET_KEY=your_secret
+## 🏗️ Architecture Overview
+movie_recommendation_system/
+├── movie_recommendation/ # Main Django project
+│ ├── movies/ # Movie catalog and management
+│ │ ├── models.py # Movie, Genre, Person models
+│ │ ├── views.py # Home, detail, search views
+│ │ ├── tmdb_service.py # TMDb API integration
+│ │ └── management/commands/ # Data population commands
+│ ├── users/ # User management and preferences
+│ │ ├── models.py # UserPreference, Rating, Watchlist
+│ │ ├── preference_service.py # Real-time recommendation engine
+│ │ └── model_service.py # Hybrid AI model integration
+│ ├── api/ # REST API endpoints
+│ │ └── views.py # Real-time tracking and recommendations
+│ ├── ai_models/ # AI model services
+│ │ └── ncf_service.py # Neural Collaborative Filtering
+│ └── templates/ # Django templates
+├── data/ # Movie dataset
+└── requirements.txt # Python dependencies
+
+
+## 🚀 Quick Start
+
+# AI Model Integration
+- Place `max_performance_ncf.keras` and encoders inside `../AI Model/`
+- Django app loads model via `model_service.py` (MODEL_PATH setting).
+- If model is not found, system falls back to content + popularity recommenders.
+
+
+### Prerequisites
+- Python 3.10+
+- Git
+- Virtual environment (recommended)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd movie_recommendation_system
+   ```
+
+2. **Set up virtual environment**
+   ```bash
+   python -m venv venv
+   
+   # Windows
+   venv\Scripts\activate
+   
+   # Linux/Mac
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r movie_recommendation/requirements.txt
+   ```
+
+4. **Configure environment variables**
+   ```bash
+   # Optional: Enable TMDb API for movie posters
+   set TMDB_API_ENABLED=true
+   set TMDB_API_KEY=your_tmdb_api_key
+   
+   # Required: Django settings
+   set DJANGO_SECRET_KEY=your_secret_key
+   set DEBUG=true
+   ```
+
+5. **Initialize the database**
+   ```bash
+   cd movie_recommendation
+   python manage.py migrate
+   python manage.py populate_popular_movies
+   python manage.py setup_sample_posters
+   ```
+
+6. **Start the server**
+   ```bash
+   python manage.py runserver
+   ```
+
+7. **Access the application**
+   - Open http://127.0.0.1:8000
+   - Register a new account
+   - Start rating movies and building your profile!
+
+
+## 🎯 How It Works
+
+### Real-Time Recommendation Engine
+
+The system uses a sophisticated multi-layered approach:
+
+1. **Interaction Tracking**: Every user action (click, rate, watchlist) is tracked with weighted importance
+2. **Preference Learning**: Genre preferences are updated in real-time with time decay
+3. **Hybrid Recommendations**: Combines multiple strategies based on user engagement level
+4. **Smart Caching**: Optimized performance with intelligent cache invalidation
+
+### Recommendation Strategies
+
+#### For New Users (< 5 interactions)
+- **NCF**: 25% - Limited collaborative data
+- **Real-time**: 35% - Basic preference learning
+- **Content-based**: 25% - Genre-based recommendations
+- **Popularity**: 15% - Safe popular choices
+
+#### For Active Users (5-50 interactions)
+- **NCF**: 45% - Strong collaborative patterns
+- **Real-time**: 35% - Preference learning
+- **Content-based**: 15% - Genre diversity
+- **Popularity**: 5% - Trending content
+
+#### For Power Users (50+ interactions)
+- **NCF**: 50% - Primary collaborative engine
+- **Real-time**: 35% - Real-time insights
+- **Content-based**: 10% - Exploration
+- **Popularity**: 5% - Serendipity
+
+### AI Model Integration
+
+The system includes a Neural Collaborative Filtering (NCF) model:
+
+- **TensorFlow/Keras**: Trained deep learning model for collaborative filtering
+- **Hybrid Approach**: Combines NCF predictions with real-time preferences
+- **Fallback System**: Graceful degradation when AI models are unavailable
+- **Performance Optimized**: Cached predictions and efficient batch processing
+
+## 📊 Features Deep Dive
+
+### User Management
+- **Registration/Login**: Secure user authentication
+- **Profile Management**: Editable preferences and viewing statistics
+- **Watchlist**: Save movies for later viewing
+- **Rating System**: 1-5 star ratings with persistent UI
+
+### Movie Discovery
+- **Search**: Full-text search across movie titles
+- **Genre Browsing**: Filter movies by genre
+- **Similar Movies**: AI-powered recommendations based on current movie
+- **Trending**: Popular movies based on recent interactions
+
+### Real-Time Personalization
+- **Dynamic Homepage**: Sections adapt to user preferences
+- **Genre Carousels**: Personalized genre-based movie collections
+- **Interaction Tracking**: Every click, view, and rating influences recommendations
+- **Time Decay**: Preferences naturally evolve over time
+
+## 🔌 API Endpoints
+
+### Core Recommendation APIs
+```http
+GET /api/hybrid-recommendations/     # Hybrid NCF + real-time recommendations
+GET /api/realtime-recommendations/   # Real-time personalized recommendations
+GET /api/dynamic-carousels/         # Dynamic genre carousels
+GET /api/user-insights/             # User behavior analytics
+```
+
+### Interaction Tracking APIs
+```http
+POST /api/track/                     # Track user interactions
+POST /api/rate-movie/               # Rate a movie
+POST /api/add-to-watchlist/         # Add to watchlist
+POST /api/remove-from-watchlist/    # Remove from watchlist
+```
+
+### Example API Usage
+```javascript
+// Track user interaction
+fetch('/api/track/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+    },
+    body: JSON.stringify({
+        movie_id: 123,
+        interaction_type: 'click',
+        context: { page: 'home', source: 'trending' }
+    })
+});
+
+// Get personalized recommendations
+fetch('/api/hybrid-recommendations/?limit=20')
+    .then(response => response.json())
+    .then(data => console.log(data.recommendations));
+```
+
+## 🎨 User Interface
+
+### Homepage Sections
+- **Personalized Recommendations**: "For You" section based on preferences
+- **AI Recommendations**: "Recommended by AI" using NCF model
+- **Trending Movies**: Popular movies based on recent interactions
+- **Top Rated**: Highest-rated movies in the system
+- **Genre Carousels**: Dynamic sections for preferred genres
+- **Decade Collections**: Movies organized by release decade
+
+### Movie Detail Page
+- **Movie Information**: Title, plot, release year, duration
+- **Poster Integration**: TMDb API integration with fallbacks
+- **User Actions**: Rate, add to watchlist, view similar movies
+- **Similar Movies**: AI-powered recommendations based on current movie
+
+## �� Configuration
+
+### Environment Variables
+```bash
+# Django Configuration
+DJANGO_SECRET_KEY=your_secret_key
 DEBUG=true
 ALLOWED_HOSTS=127.0.0.1,localhost
+
+# TMDb API (Optional)
 TMDB_API_ENABLED=true
-TMDB_API_KEY=your_tmdb_key
+TMDB_API_KEY=your_tmdb_api_key
 
-Run migrations and seed sample data
+# AI Model Configuration
+NCF_MODEL_ENABLED=true
+NCF_MODEL_PATH=/path/to/model.keras
+```
 
-python manage.py migrate
+### Database Configuration
+- **Default**: SQLite (development)
+- **Production**: PostgreSQL/MySQL recommended
+- **Caching**: Redis recommended for production
+
+## 📈 Performance Features
+
+### Intelligent Caching
+- **User-specific caches**: Separate cache per user
+- **Selective invalidation**: Only clear relevant caches
+- **TTL optimization**: Different timeouts for different data types
+
+### Database Optimization
+- **Efficient queries**: Using `select_related` and `prefetch_related`
+- **Indexed fields**: Optimized database indexes for fast lookups
+- **Query optimization**: Minimal database hits
+
+### Real-Time Updates
+- **Smart debouncing**: Prevents excessive API calls
+- **Batch processing**: Groups multiple interactions
+- **Background processing**: Non-blocking recommendation updates
+
+## 🛠️ Management Commands
+
+### Data Population
+```bash
+# Populate movies from dataset
 python manage.py populate_popular_movies
-python manage.py setup_sample_posters   # optional if TMDb disabled
 
-Start server
+# Set up sample posters (if TMDb disabled)
+python manage.py setup_sample_posters
 
-python manage.py runserver
-
-Quick Start
-- Visit http://127.0.0.1:8000
-- Register a user, rate a few movies, add to watchlist
-- Open Home to see recommendations adapt in real‑time
-
-Usage
-- Home: personalized carousels (Trending, For You, By Genre, Decades)
-- Movie detail: poster, synopsis, similar movies, star ratings (persist visually)
-- Search: query by title; Genre pages; Watchlist management
-- Profile: edit preferences; see stats and recent activity
-
-How Recommendations Work (Strategies)
-1) Real‑time preference learning (primary)
-   - Tracks interactions (click, view_detail, add/remove_watchlist, rate)
-   - Updates per‑genre weights with time‑decay; caches user vectors
-   - Produces personalized lists and dynamic genre carousels
-2) Content‑based filtering
-   - Uses genres and release_year to build genre/decade sections
-3) Popularity/trending
-   - Orders by interaction counts and average_rating for robust fallbacks
-4) Collaborative/user‑based (utility jobs)
-   - Finds similar users by preference overlap and surfaces their favorites
-
-Concrete examples from code
-- Personalized and dynamic sections (movies/views.py):
-```python
-from django.db.models import Count
-personalized = RealTimePreferenceService.get_personalized_recommendations(request.user, limit=10)
-dynamic = RealTimePreferenceService.get_dynamic_genre_carousels(request.user, max_genres=3)
-trending = Movie.objects.annotate(interaction_count=Count('userinteraction')).order_by('-interaction_count','-average_rating')[:12]
-top_rated = Movie.objects.exclude(average_rating=0.0).order_by('-average_rating','-release_year')[:12]
-```
-- Similar movies (movie_detail):
-```python
-all_personalized = RealTimePreferenceService.get_personalized_recommendations(request.user, limit=10)
-similar_movies = [m for m in all_personalized if m.id != movie.id][:6]
-```
-- Posters (models.py):
-```python
-url = movie.get_poster_url()  # caches results; respects TMDB_API_ENABLED
+# Smart movie discovery
+python manage.py smart_movie_discovery
 ```
 
-API (selected)
-- POST /api/track/ → record interaction { movie_id, interaction_type, context }
-- GET  /api/realtime/recommendations/ → personalized list
-- GET  /api/realtime/carousels/ → dynamic genre carousels
-- GET  /api/realtime/insights/ → user analytics
-- POST /api/refresh/ → refresh sections server‑side
+### AI Model Management
+```bash
+# Load NCF model
+python manage.py load_ncf_model
 
-Data & Posters
-- TMDb for posters; enable via TMDB_API_ENABLED and TMDB_API_KEY
-- `setup_sample_posters` command to bypass TMDb in development
+# Refresh NCF cache
+python manage.py refresh_ncf_cache
 
-Environment & Configuration
-- DEBUG/SECRET_KEY/ALLOWED_HOSTS from env; secure cookies/HSTS toggles for prod
-- Static files configured; CSRF protected APIs
+# Export training data
+python manage.py export_training_data --format json
+```
 
-Deployment
-- python manage.py collectstatic
-- Run with WSGI/ASGI server behind a reverse proxy
+## 🔒 Security Features
 
-Demo Walkthrough
-1) Sign up and log in
-2) Visit Home → Trending/Top Rated + initial Personalized
-3) Click/rate a few titles → Home adapts within seconds
-4) Open a movie → similar titles leverage your current profile
-5) Profile → view stats and edit preferences
+### Production Security
+- **CSRF Protection**: All API endpoints protected
+- **Secure Cookies**: HTTPOnly, Secure flags in production
+- **HSTS Headers**: HTTP Strict Transport Security
+- **Content Security**: XSS protection and content type sniffing prevention
 
-AI Model (optional advanced)
-- Code: ai_model_integration_example.py (RandomForest example)
-- Export: users/management/commands/export_training_data.py
-- Train: prepare features, fit, save with joblib; optionally push to Hugging Face
-- Integrate: load model and score candidates alongside real‑time layer
+### API Security
+- **Authentication Required**: All recommendation endpoints require login
+- **Rate Limiting**: Prevents abuse of rating and interaction endpoints
+- **Input Validation**: Comprehensive validation of all user inputs
 
-Troubleshooting
-- CSRF/405: include X‑CSRFToken header; custom logout view supports GET
-- Posters missing: enable TMDb or run setup_sample_posters; check timeouts
-- “sklearn could not be resolved”: activate venv; pip install -r requirements.txt; set IDE interpreter
-- DB errors: run makemigrations/migrate
+## 🚀 Deployment
+
+### Production Deployment
+```bash
+# Collect static files
+python manage.py collectstatic
+
+# Run migrations
+python manage.py migrate
+
+# Start with production server
+gunicorn movie_recsys.wsgi:application
+```
+
+### Docker Deployment (Optional)
+```dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY movie_recommendation/requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["gunicorn", "movie_recsys.wsgi:application"]
+```
+
+## 📊 Monitoring and Analytics
+
+### User Insights
+- **Engagement Metrics**: Track user interaction patterns
+- **Preference Evolution**: Monitor how user tastes change over time
+- **Recommendation Performance**: Measure recommendation accuracy
+
+### System Monitoring
+- **API Performance**: Track response times and error rates
+- **Cache Hit Rates**: Monitor caching effectiveness
+- **Database Performance**: Query optimization and performance metrics
+
+## 🔮 Future Enhancements
+
+### Planned Features
+- **WebSocket Integration**: Real-time updates without polling
+- **A/B Testing Framework**: Test different recommendation algorithms
+- **Social Features**: Friend-based recommendations
+- **Multi-language Support**: Internationalization
+- **Mobile App**: React Native or Flutter mobile application
+
+### AI Improvements
+- **Deep Learning Models**: Advanced neural network architectures
+- **Real-time Model Updates**: Online learning capabilities
+- **Multi-modal Recommendations**: Text, image, and audio analysis
+- **Explainable AI**: Provide reasoning for recommendations
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Recommendations not updating**
+   - Check cache configuration
+   - Verify JavaScript is loading
+   - Check browser console for errors
+
+2. **Performance issues**
+   - Enable Redis caching
+   - Check database query performance
+   - Monitor API response times
+
+3. **AI integration issues**
+   - Verify model file paths
+   - Check training data format
+   - Validate feature engineering
+
+### Debug Mode
+```python
+# Enable debug logging
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'users.preference_service': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+```
+
+## 📚 Documentation
+
+- **Real-time System**: See `REALTIME_RECOMMENDATIONS.md`
+- **TMDb Setup**: See `TMDB_API_SETUP.md`
+- **AI Integration**: See `ai_model_integration_example.py`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## �� Acknowledgments
+
+- **TMDb**: For providing movie data and poster images
+- **Django Community**: For the excellent web framework
+- **TensorFlow Team**: For the machine learning capabilities
+- **Bootstrap**: For the responsive UI components
+
+---
+
+**Built with ❤️ for movie lovers everywhere!** 🍿
+
+For questions or support, please open an issue on GitHub.
