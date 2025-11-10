@@ -28,50 +28,6 @@ This project solves “what should I watch next?” by delivering personalized, 
 
 A sophisticated, real-time movie recommendation engine built with Django that learns from user behavior and adapts recommendations instantly. Features hybrid AI-powered recommendations, Netflix-like UI, and production-ready architecture.
 
-## 🌟 Key Features
-
-### 🧠 Intelligent Recommendation Engine
-- **Real-time Learning**: Adapts recommendations after every user interaction
-- **Hybrid AI System**: Combines Neural Collaborative Filtering (NCF) with real-time preference learning
-- **Multi-Strategy Approach**: Content-based, collaborative filtering, and popularity-based recommendations
-- **Smart Fallbacks**: Graceful handling for new users and cold-start scenarios
-
-### 🎯 User Experience
-- **Netflix-like Interface**: Modern, responsive UI with movie carousels and cards
-- **Personalized Homepage**: Dynamic sections based on user preferences
-- **Interactive Features**: Star ratings, watchlist management, movie search
-- **Real-time Updates**: Recommendations refresh automatically as users interact
-
-### 🔧 Technical Excellence
-- **Production-Ready**: Security headers, CSRF protection, optimized caching
-- **Scalable Architecture**: Modular design with separate apps for movies, users, and API
-- **AI Integration**: TensorFlow/Keras models with scikit-learn fallbacks
-- **Performance Optimized**: Intelligent caching, database optimization, and efficient queries
-
-## 🏗️ Architecture Overview
-# 🎬 Advanced Movie Recommendation System
-
-A sophisticated, real-time movie recommendation engine built with Django that learns from user behavior and adapts recommendations instantly. Features hybrid AI-powered recommendations, Netflix-like UI, and production-ready architecture.
-
-## 🌟 Key Features
-
-### 🧠 Intelligent Recommendation Engine
-- **Real-time Learning**: Adapts recommendations after every user interaction
-- **Hybrid AI System**: Combines Neural Collaborative Filtering (NCF) with real-time preference learning
-- **Multi-Strategy Approach**: Content-based, collaborative filtering, and popularity-based recommendations
-- **Smart Fallbacks**: Graceful handling for new users and cold-start scenarios
-
-### 🎯 User Experience
-- **Netflix-like Interface**: Modern, responsive UI with movie carousels and cards
-- **Personalized Homepage**: Dynamic sections based on user preferences
-- **Interactive Features**: Star ratings, watchlist management, movie search
-- **Real-time Updates**: Recommendations refresh automatically as users interact
-
-### 🔧 Technical Excellence
-- **Production-Ready**: Security headers, CSRF protection, optimized caching
-- **Scalable Architecture**: Modular design with separate apps for movies, users, and API
-- **AI Integration**: TensorFlow/Keras models with scikit-learn fallbacks
-- **Performance Optimized**: Intelligent caching, database optimization, and efficient queries
 
 ## 🏗️ Architecture Overview
 movie_recommendation_system/
